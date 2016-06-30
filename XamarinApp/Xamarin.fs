@@ -12,7 +12,8 @@ let CreateNaiveUI (window:ContentPage) =
         |Input (text,event) ->
             let c = Entry(Text=string text)
             let event = !event
-            c.TextChanged.Add(fun _ -> let t = c.Text in async { !event t } |> Async.Start)
+            c.TextChanged.Add(fun _ -> let t = c.Text
+                                       async { !event t } |> Async.Start)
             upcast c
         |Button (text,event) ->
             let c = Button(Text=string text)
@@ -21,16 +22,12 @@ let CreateNaiveUI (window:ContentPage) =
             upcast c
         |Div (layout,list) ->
             let children = List.map createUI list
-            let c = StackLayout(Orientation=match layout with |Vertical->StackOrientation.Vertical |Horizontal->StackOrientation.Horizontal)
+            let c = StackLayout(Orientation=
+                                    match layout with
+                                    |Vertical->StackOrientation.Vertical
+                                    |Horizontal->StackOrientation.Horizontal)
             List.iter (c.Children.Add>>ignore) children
             upcast c
-
-    let updateUI ui (element:View) =
-        match ui with
-        | Text text -> (element :?> Label).Text <- string text
-        | Input (text,_) -> (element :?> Entry).Text <- string text
-        | Button (text,_) -> (element :?> Button).Text <- string text
-        | Div _ -> ()
 
     let rec locatePanel loc : View Layout =
         match loc with
@@ -44,8 +41,14 @@ let CreateNaiveUI (window:ContentPage) =
             |[] -> window.Content <- createUI ui
             |i::xs -> (locatePanel xs).Children.Insert(i,createUI ui)
         | UpdateUI (loc,ui) ->
-            let uiElement = match loc with |[] -> window.Content :?> _ |i::xs -> (locatePanel xs).Children.Item i
-            updateUI ui uiElement
+            let element = match loc with
+                          |[] -> window.Content :?> _
+                          |i::xs -> (locatePanel xs).Children.Item i
+            match ui with
+            | Text text -> (element :?> Label).Text <- string text
+            | Input (text,_) -> (element :?> Entry).Text <- string text
+            | Button (text,_) -> (element :?> Button).Text <- string text
+            | Div _ -> ()
         | ReplaceUI (loc,ui) ->
             match loc with
             |[] -> window.Content <- createUI ui
