@@ -113,7 +113,7 @@ module UI =
             |Button (t1,e1),Button (t2,e2) -> if t1=t2 then EventUI(update e1 e2)::diffs else EventUI(update e1 e2)::UpdateUI(path,ui2)::diffs
             |Input (t1,e1),Input (t2,e2) -> if t1=t2 then EventUI(update e1 e2)::diffs else EventUI(update e1 e2)::UpdateUI(path,ui2)::diffs
             |Button _,Button _ |Input _,Input _ -> UpdateUI(path,ui2)::diffs
-            |Div (l1,_),Div (l2,_) when l1<>l2 -> ReplaceUI(index::path,ui2)::diffs
+            |Div (l1,_),Div (l2,_) when l1<>l2 -> ReplaceUI(path,ui2)::diffs
             |Div (_,[]),Div (_,[]) -> diffs
             |Div (_,[]),Div (_,l) -> List.fold (fun (i,diffs) ui -> i+1,InsertUI(i::path,ui)::diffs) (index,diffs) l |> snd
             |Div (_,l),Div (_,[]) -> List.fold (fun (i,diffs) _ -> i+1,RemoveUI(i::path)::diffs) (index,diffs) l |> snd
@@ -121,7 +121,7 @@ module UI =
             |Div (l,(h1::t1)),Div (_,(h2::h3::t2)) when obj.ReferenceEquals(h1,h3) -> diff (Div(l,t1)) (Div(l,t2)) path (index+1) (InsertUI(index::path,h2)::diffs)
             |Div (l,(_::h2::t1)),Div (_,(h3::t2)) when obj.ReferenceEquals(h2,h3) -> diff (Div(l,t1)) (Div(l,t2)) path (index+1) (RemoveUI(index::path)::diffs)
             |Div (l,(h1::t1)),Div (_,(h2::t2)) -> diff h1 h2 (index::path) 0 diffs |> diff (Div(l,t1)) (Div(l,t2)) path (index+1)
-            |_,_ -> ReplaceUI(index::path,ui2)::diffs
+            |_,_ -> ReplaceUI(path,ui2)::diffs
         diff ui1.UI ui2.UI [] 0 []
 
     /// Returns a UI application from a UI model, update and view.
